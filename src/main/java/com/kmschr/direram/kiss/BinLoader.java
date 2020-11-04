@@ -28,12 +28,22 @@ public class BinLoader {
 
     // copy executable from resources to temporary directory for running
     public String copyExe(String exeName) throws IOException {
-        String exePath = "";
+        String exePath;
         File exeFile = new File(tempDir.toAbsolutePath().toString() + "\\" + exeName);
         InputStream exeStream = getClass().getResourceAsStream("/bin/" + exeName);
         FileUtils.copyInputStreamToFile(exeStream, exeFile);
         exePath = exeFile.getAbsolutePath();
         return exePath;
+    }
+
+    public void copyFile(String fileName) throws IOException {
+        File file = new File(tempDir.toAbsolutePath().toString() + "\\" + fileName);
+        InputStream fileStream = getClass().getResourceAsStream("/bin/" + fileName);
+        FileUtils.copyInputStreamToFile(fileStream, file);
+    }
+
+    public String getTempPath() {
+        return tempDir.toAbsolutePath().toString();
     }
 
 }

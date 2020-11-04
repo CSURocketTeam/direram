@@ -2,8 +2,6 @@ package com.kmschr.direram.kiss;
 
 import com.kmschr.direram.Client;
 
-import java.io.IOException;
-
 public class DireWolfRunner implements Runnable {
 
     Client client;
@@ -13,8 +11,9 @@ public class DireWolfRunner implements Runnable {
         this.client = Client.getInstance();
         client.println("> Loading direwolf.exe");
         try {
+            BinLoader.getBinLoader().copyFile("direwolf.conf");
             this.exePath = BinLoader.getBinLoader().copyExe("direwolf.exe");
-        } catch (IOException e) {
+        } catch (Exception e) {
             client.println("> Error loading direwolf.exe");
             client.println(e.getMessage());
             e.printStackTrace();
@@ -29,7 +28,7 @@ public class DireWolfRunner implements Runnable {
 
             // Run completely detached since it breaks when ran as a child process
             // This works for Windows only
-            Runtime.getRuntime().exec("cmd /c start " + exePath);
+            Runtime.getRuntime().exec("cmd /c start " + exePath + " -c " + BinLoader.getBinLoader().getTempPath() + "\\" + "direwolf.conf");
 
             //final Process dw = new ProcessBuilder(exePath).start();
             //Runtime.getRuntime().addShutdownHook(new Thread(dw::destroy));

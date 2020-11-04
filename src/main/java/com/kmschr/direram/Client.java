@@ -23,7 +23,6 @@ public class Client {
 
     private PacketLog packetLog;
 
-    private Stage primaryStage;
     private MainController mainController;
 
     private String tileServerURL = "http://localhost:8080/styles/basic-preview/{z}/{x}/{y}.png";
@@ -42,11 +41,8 @@ public class Client {
         webcamStreamURL = url;
     }
 
-    public void setPrimaryStage(Stage stage) {
-        this.primaryStage = stage;
-        primaryStage.heightProperty().addListener((obs, oldVal, newVal) -> {
-            mainController.resizeStream(oldVal, newVal);
-        });
+    public void makeStreamResizeable(Stage stage) {
+        stage.heightProperty().addListener((obs, oldVal, newVal) -> mainController.resizeStream(oldVal, newVal));
     }
 
     public void setMainController(MainController vc) {
@@ -124,10 +120,10 @@ public class Client {
     public void showTileServerPrompt() {
         Stage stage = new Stage();
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("fxml/tileServer.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/tileServer.fxml"));
             Scene scene = new Scene(root, 400, 118);
             stage.setTitle("Select Tile Server...");
-            stage.getIcons().add(new Image(getClass().getResourceAsStream("img/rocket.png")));
+            stage.getIcons().add(new Image(getClass().getResourceAsStream("/img/rocket.png")));
             stage.setResizable(false);
             stage.setScene(scene);
             stage.show();
@@ -139,10 +135,10 @@ public class Client {
     public void showWebcamStreamPrompt() {
         Stage stage = new Stage();
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("fxml/webcamServer.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/webcamServer.fxml"));
             Scene scene = new Scene(root, 400, 118);
             stage.setTitle("Select Webcam Stream...");
-            stage.getIcons().add(new Image(getClass().getResourceAsStream("img/rocket.png")));
+            stage.getIcons().add(new Image(getClass().getResourceAsStream("/img/rocket.png")));
             stage.setResizable(false);
             stage.setScene(scene);
             stage.show();
