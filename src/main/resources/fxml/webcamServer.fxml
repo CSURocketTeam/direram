@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="anchorPane" prefHeight="118.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kmschr.direram.controllers.WebcamController">
+   <TextField fx:id="url" layoutX="14.0" layoutY="37.0" prefHeight="25.0" prefWidth="361.0"
+              text="http://192.168.0.229/HLSStream/webcam0.m3u8"/>
+   <Label layoutX="14.0" layoutY="14.0" text="Webcam HLS Server (.m3u8)"/>
+   <Button fx:id="applyButton" layoutX="328.0" layoutY="74.0" mnemonicParsing="false" text="Apply"/>
+   <Button fx:id="cancelButton" layoutX="258.0" layoutY="74.0" mnemonicParsing="false" text="Cancel"/>
+</AnchorPane>
