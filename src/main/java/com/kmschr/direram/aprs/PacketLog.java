@@ -1,9 +1,12 @@
 package com.kmschr.direram.aprs;
 
+import com.sothawo.mapjfx.Coordinate;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -24,44 +27,47 @@ public class PacketLog {
         try {
             FileWriter fw = new FileWriter(kmlFile.getCanonicalPath());
 
-            SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
-            Date date = new Date(System.currentTimeMillis());
+            var formatter= new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss");
+            String date = formatter.format(LocalDateTime.now());
 
-            fw.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                     "<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n" +
-                     "  <Document>\n" +
-                     "    <name>Aries CoVId</name>\n" +
-                     "    <description>" + formatter.format(date) + "</description>\n" +
-                     "    <Style id=\"yellowLineGreenPoly\">\n" +
-                     "      <LineStyle>\n" +
-                     "        <color>7f00ffff</color>\n" +
-                     "        <width>4</width>\n" +
-                     "      </LineStyle>\n" +
-                     "      <PolyStyle>\n" +
-                     "        <color>7f00ff00</color>\n" +
-                     "      </PolyStyle>\n" +
-                     "    </Style>\n" +
-                     "    <Placemark>\n" +
-                     "      <name>Rocket Path</name>\n" +
-                     "      <description>Rocket Path</description>\n" +
-                     "      <styleURL>#yellowLineGreenPoly</styleURL>\n" +
-                     "      <LineString>\n" +
-                     "        <extrude>0</extrude>\n" +
-                     "        <tessellate>1</tessellate>\n" +
-                     "        <altitudeMode>relativeToGround</altitudeMode>\n" +
-                     "        <coordinates>\n");
-
+            fw.write("""
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <kml xmlns="http://www.opengis.net/kml/2.2">
+                      <Document>
+                        <name>Aries CoVId</name>
+                        <description>%s</description>
+                        <Style id="yellowLineGreenPoly">
+                          <LineStyle>
+                            <color>7f00ffff</color>
+                            <width>4</width>
+                          </LineStyle>
+                          <PolyStyle>
+                            <color>7f00ff00</color>
+                          </PolyStyle>
+                        </Style>
+                        <Placemark>
+                          <name>Rocket Path</name>
+                          <description>Rocket Path</description>
+                          <styleURL>#yellowLineGreenPoly</styleURL>
+                          <LineString>
+                            <extrude>0</extrude>
+                            <tessellate>1</tessellate>
+                            <altitudeMode>relativeToGround</altitudeMode>
+                            <coordinates>""".formatted(date));
             for (APRSPacket packet : packets) {
-                if (!packet.isAPRS() || packet.getPosition() == null || !packet.getCallSign().equals("K0BKK-9"))
+                Coordinate pos = packet.getPosition();
+                if (!packet.isAPRS() || pos == null)
                     continue;
-                fw.write("          " + packet.getPosition().getLongitude() + "," + packet.getPosition().getLatitude() + "," + (int) (packet.getAltitude() / 0.3048) + "\n");
+                fw.write("          %s, %s, %d\n".formatted(pos.getLongitude(), pos.getLatitude(), (int) (packet.getAltitude() / 0.3048)));
             }
+            fw.write("""
+                                </coordinates>
+                          </LineString>
+                        </Placemark>
+                      </Document>
+                    </kml>
+                    """);
 
-            fw.write("        </coordinates>\n" +
-                     "      </LineString>\n" +
-                     "    </Placemark>\n" +
-                     "  </Document>\n" +
-                     "</kml>");
             fw.close();
         } catch (IOException ie) {
             ie.printStackTrace();

@@ -36,7 +36,7 @@ public class MainController implements Initializable {
     @FXML private MenuItem tileServer;
     @FXML private MenuItem webcamStream;
 
-    private Client client;
+    private final Client client;
     private Marker curMarker;
     private List<CoordinateLine> lines;
     private int max_alt = 0;
@@ -55,6 +55,14 @@ public class MainController implements Initializable {
     public void setStatus(Coordinate position, String pos, int altitude, int course, int speed) {
         if (altitude > max_alt)
             max_alt = altitude;
+        this.statusField.setText("""
+                Position:
+                  %s
+                  %s
+                Altitude: %d ft
+                Course: %d\u00B0
+                Speed: %d knots
+                Max Altitude: %d ft""");
         this.statusField.setText("Position: \n" +
                                  "  " + position.getLatitude() + ", " + position.getLongitude() + "\n" +
                                  "  " + pos + "\n" +
@@ -81,30 +89,24 @@ public class MainController implements Initializable {
     }
 
     public void refreshStream() {
-        MediaPlayer mp1 = new MediaPlayer(new Media(Client.getInstance().getWebcamStreamURL()));
+        MediaPlayer mp1 = new MediaPlayer(new Media(client.getWebcamStreamURL()));
         mp1.play();
         mediaView.setMediaPlayer(mp1);
     }
 
     public void refreshMap() {
         switch (client.getMapType()) {
-            case XYZ:
-                mapView.setXYZParam(new XYZParam().withUrl(client.getTileServerURL()));
-                break;
-            case WMS:
-                mapView.setWMSParam(new WMSParam().setUrl(client.getTileServerURL()));
-                break;
-            case BINGMAPS_ROAD:
-                mapView.setBingMapsApiKey(client.getTileServerURL());
-                break;
-            case OSM:
-            default:
-                break;
+            case XYZ -> mapView.setXYZParam(new XYZParam().withUrl(client.getTileServerURL()));
+            case WMS -> mapView.setWMSParam(new WMSParam().setUrl(client.getTileServerURL()));
+            case BINGMAPS_ROAD -> mapView.setBingMapsApiKey(client.getTileServerURL());
+            default -> {}
         }
         mapView.setMapType(client.getMapType());
-
         Projection projection = Projection.WEB_MERCATOR;
-        mapView.initialize(Configuration.builder().projection(projection).showZoomControls(true).build());
+        mapView.initialize(Configuration.builder()
+                .projection(projection)
+                .showZoomControls(true)
+                .build());
         mapView.setZoom(12);
         mapView.setCenter(new Coordinate(40.551229, -105.094120));
     }
@@ -124,23 +126,21 @@ public class MainController implements Initializable {
             lines.add(newLine);
             curMarker.setVisible(false);
         }
-
         curMarker = marker;
         mapView.addMarker(curMarker);
         curMarker.setVisible(true);
     }
 
     public void resizeStream(Number oldVal, Number newVal) {
-        mediaView.setFitHeight(mediaView.getFitHeight() * (newVal.doubleValue() / oldVal.doubleValue()));
+        double resizeRatio = newVal.doubleValue() / oldVal.doubleValue();
+        mediaView.setFitHeight(mediaView.getFitHeight() * resizeRatio);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         mediaView.fitWidthProperty().bind(((GridPane) mediaView.getParent()).widthProperty());
-
         refreshStream();
         refreshMap();
-
         gridPane.setOnMouseClicked(actionEvent -> gridPane.requestFocus());
         refreshStream.setOnAction(actionEvent -> refreshStream());
         //refreshMap.setOnAction(actionEvent -> refreshMap());
@@ -150,7 +150,6 @@ public class MainController implements Initializable {
         exportCSV.setOnAction(actionEvent -> client.showCSVDialog());
         tileServer.setOnAction(actionEvent -> client.showTileServerPrompt());
         webcamStream.setOnAction(actionEvent -> client.showWebcamStreamPrompt());
-
         new Thread(new DireWolfRunner()).start();
     }
 }
