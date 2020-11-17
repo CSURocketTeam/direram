@@ -57,19 +57,21 @@ public class MainController implements Initializable {
             max_alt = altitude;
         this.statusField.setText("""
                 Position:
+                  %s, %s
                   %s
-                  %s
-                Altitude: %d ft
-                Course: %d\u00B0
-                Speed: %d knots
-                Max Altitude: %d ft""");
-        this.statusField.setText("Position: \n" +
-                                 "  " + position.getLatitude() + ", " + position.getLongitude() + "\n" +
-                                 "  " + pos + "\n" +
-                                 "Altitude: " + (altitude == -1 ? "?" : altitude) + " ft\n" +
-                                 "Course: " + (course == -1 ? "?" : course) + "\u00B0\n" +
-                                 "Speed: " + (speed == -1 ? "?" : speed) + " knots\n" +
-                                 "Max Altitude: " + max_alt + " ft\n");
+                Altitude: %s ft
+                Course: %s\u00B0
+                Speed: %s knots
+                Max Altitude: %s ft"""
+                .formatted(
+                        position.getLatitude(),
+                        position.getLongitude(),
+                        pos,
+                        (altitude == -1 ? "?" : altitude),
+                        (course == -1 ? "?" : course),
+                        (speed == -1 ? "?" : speed),
+                        max_alt
+                ));
         ScrollBar sbv = (ScrollBar) statusField.lookup(".scroll-bar:vertical");
         if (sbv != null)
             sbv.setDisable(true);
@@ -90,8 +92,8 @@ public class MainController implements Initializable {
 
     public void refreshStream() {
         MediaPlayer mp1 = new MediaPlayer(new Media(client.getWebcamStreamURL()));
-        mp1.play();
         mediaView.setMediaPlayer(mp1);
+        mp1.play();
     }
 
     public void refreshMap() {
